@@ -152,9 +152,8 @@ public:
 
 public:
   void servoCurrentPosition(const int &time);
-
-private:
   MatrixHomogeneous &computefaMfb(MatrixHomogeneous &res, int time);
+private:
   Vector7 &computeQfaMfb(Vector7 &res, int time);
   Vector7 &computeQfaMfbDes(Vector7 &res, int time);
 

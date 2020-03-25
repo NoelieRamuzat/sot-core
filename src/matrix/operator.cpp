@@ -597,10 +597,13 @@ typedef Multiplier_FxE__E<double, dynamicgraph::Vector>
     Multiplier_double_vector;
 typedef Multiplier_FxE__E<dynamicgraph::Matrix, dynamicgraph::Vector>
     Multiplier_matrix_vector;
+typedef Multiplier_FxE__E<dynamicgraph::sot::MatrixTwist, dynamicgraph::Vector>
+    Multiplier_matrixTwist_vector;
 typedef Multiplier_FxE__E<MatrixHomogeneous, dynamicgraph::Vector>
     Multiplier_matrixHomo_vector;
 REGISTER_BINARY_OP(Multiplier_double_vector, Multiply_double_vector);
 REGISTER_BINARY_OP(Multiplier_matrix_vector, Multiply_matrix_vector);
+REGISTER_BINARY_OP(Multiplier_matrixTwist_vector, Multiply_matrixTwist_vector);
 REGISTER_BINARY_OP(Multiplier_matrixHomo_vector, Multiply_matrixHomo_vector);
 
 /* --- SUBSTRACTION ----------------------------------------------------- */
