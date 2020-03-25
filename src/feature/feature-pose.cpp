@@ -33,14 +33,14 @@ using namespace std;
 using namespace dynamicgraph;
 using namespace dynamicgraph::sot;
 
-typedef pinocchio::CartesianProductOperation<
-    pinocchio::VectorSpaceOperationTpl<3, double>,
-    pinocchio::SpecialOrthogonalOperationTpl<3, double> >
-    R3xSO3_t;
+typedef pinocchio::CartesianProductOperation <
+pinocchio::VectorSpaceOperationTpl<3, double>,
+          pinocchio::SpecialOrthogonalOperationTpl<3, double> >
+          R3xSO3_t;
 typedef pinocchio::SpecialEuclideanOperationTpl<3, double> SE3_t;
 template <Representation_t representation> struct LG_t {
   typedef typename boost::mpl::if_c<representation == SE3Representation, SE3_t,
-                                    R3xSO3_t>::type type;
+          R3xSO3_t>::type type;
 };
 
 typedef FeaturePose<R3xSO3Representation> FeaturePose_t;
@@ -57,32 +57,21 @@ static const MatrixHomogeneous Id(MatrixHomogeneous::Identity());
 
 template <Representation_t representation>
 FeaturePose<representation>::FeaturePose(const string &pointName)
-    : FeatureAbstract(pointName),
-      oMja(NULL, CLASS_NAME + "(" + name + ")::input(matrixHomo)::oMja"),
-      jaMfa(NULL, CLASS_NAME + "(" + name + ")::input(matrixHomo)::jaMfa"),
-      oMjb(NULL, CLASS_NAME + "(" + name + ")::input(matrixHomo)::oMjb"),
-      jbMfb(NULL, CLASS_NAME + "(" + name + ")::input(matrixHomo)::jbMfb"),
-      jaJja(NULL, CLASS_NAME + "(" + name + ")::input(matrix)::jaJja"),
-      jbJjb(NULL, CLASS_NAME + "(" + name + ")::input(matrix)::jbJjb")
-
-      ,
-      faMfbDes(NULL,
-               CLASS_NAME + "(" + name + ")::input(matrixHomo)::faMfbDes"),
-      faNufafbDes(NULL,
-                  CLASS_NAME + "(" + name + ")::input(vector)::faNufafbDes")
-
-      ,
-      faMfb(
-          boost::bind(&FeaturePose<representation>::computefaMfb, this, _1, _2),
-          oMja << jaMfa << oMjb << jbMfb,
-          CLASS_NAME + "(" + name + ")::output(vector7)::q_faMfbDes"),
-      q_faMfb(boost::bind(&FeaturePose<representation>::computeQfaMfb, this, _1,
-                          _2),
-              faMfb, CLASS_NAME + "(" + name + ")::output(vector7)::q_faMfb"),
-      q_faMfbDes(boost::bind(&FeaturePose<representation>::computeQfaMfbDes,
-                             this, _1, _2),
-                 faMfbDes,
-                 CLASS_NAME + "(" + name + ")::output(vector7)::q_faMfbDes") {
+  : FeatureAbstract(pointName),
+    oMja(NULL, CLASS_NAME + "(" + name + ")::input(matrixHomo)::oMja"),
+    jaMfa(NULL, CLASS_NAME + "(" + name + ")::input(matrixHomo)::jaMfa"),
+    oMjb(NULL, CLASS_NAME + "(" + name + ")::input(matrixHomo)::oMjb"),
+    jbMfb(NULL, CLASS_NAME + "(" + name + ")::input(matrixHomo)::jbMfb"),
+    jaJja(NULL, CLASS_NAME + "(" + name + ")::input(matrix)::jaJja"),
+    jbJjb(NULL, CLASS_NAME + "(" + name + ")::input(matrix)::jbJjb"),
+    faMfbDes(NULL, CLASS_NAME + "(" + name + ")::input(matrixHomo)::faMfbDes"),
+    faNufafbDes(NULL, CLASS_NAME + "(" + name + ")::input(vector)::faNufafbDes"),
+    faMfb(boost::bind(&FeaturePose<representation>::computefaMfb, this, _1, _2),
+          oMja << jaMfa << oMjb << jbMfb, CLASS_NAME + "(" + name + ")::output(matrixHomo)::faMfb"),
+    q_faMfb(boost::bind(&FeaturePose<representation>::computeQfaMfb, this, _1, _2),
+            faMfb, CLASS_NAME + "(" + name + ")::output(vector7)::q_faMfb"),
+    q_faMfbDes(boost::bind(&FeaturePose<representation>::computeQfaMfbDes, this, _1, _2),
+               faMfbDes, CLASS_NAME + "(" + name + ")::output(vector7)::q_faMfbDes") {
   oMja.setConstant(Id);
   jaMfa.setConstant(Id);
   jbMfb.setConstant(Id);
@@ -94,10 +83,10 @@ FeaturePose<representation>::FeaturePose(const string &pointName)
   errorSOUT.addDependencies(q_faMfbDes << q_faMfb);
 
   signalRegistration(oMja << jaMfa << oMjb << jbMfb << jaJja << jbJjb);
-  signalRegistration(errordotSOUT << faMfbDes << faNufafbDes);
+  signalRegistration(errordotSOUT << faMfb << faMfbDes << faNufafbDes);
 
   errordotSOUT.setFunction(
-      boost::bind(&FeaturePose<representation>::computeErrorDot, this, _1, _2));
+    boost::bind(&FeaturePose<representation>::computeErrorDot, this, _1, _2));
   errordotSOUT.addDependencies(q_faMfbDes << q_faMfb << faNufafbDes);
 
   // Commands
@@ -106,10 +95,10 @@ FeaturePose<representation>::FeaturePose(const string &pointName)
     using namespace dynamicgraph::command;
     addCommand("keep",
                makeCommandVoid1(
-                   *this, &FeaturePose<representation>::servoCurrentPosition,
-                   docCommandVoid1(
-                       "modify the desired position to servo at current pos.",
-                       "time")));
+                 *this, &FeaturePose<representation>::servoCurrentPosition,
+                 docCommandVoid1(
+                   "modify the desired position to servo at current pos.",
+                   "time")));
   }
 }
 
@@ -170,7 +159,7 @@ Matrix &FeaturePose<representation>::computeJacobian(Matrix &J, int time) {
   const Matrix &_jbJjb = jbJjb(time);
 
   const MatrixHomogeneous &_jbMfb =
-      (jbMfb.isPlugged() ? jbMfb.accessCopy() : Id);
+    (jbMfb.isPlugged() ? jbMfb.accessCopy() : Id);
 
   const Matrix::Index cJ = _jbJjb.cols();
   J.resize(dim, cJ);
@@ -185,7 +174,7 @@ Matrix &FeaturePose<representation>::computeJacobian(Matrix &J, int time) {
   if (boost::is_same<LieGroup_t, R3xSO3_t>::value)
     X.topRows<3>().applyOnTheLeft(faRfb);
   LieGroup_t().template dDifference<pinocchio::ARG1>(
-      q_faMfbDes.accessCopy(), q_faMfb.accessCopy(), Jminus);
+    q_faMfbDes.accessCopy(), q_faMfb.accessCopy(), Jminus);
 
   // Contribution of b:
   // J = Jminus * X * jbJjb;
@@ -197,8 +186,8 @@ Matrix &FeaturePose<representation>::computeJacobian(Matrix &J, int time) {
   if (jaJja.isPlugged()) {
     const Matrix &_jaJja = jaJja(time);
     const MatrixHomogeneous &_jaMfa =
-                                (jaMfa.isPlugged() ? jaMfa.accessCopy() : Id),
-                            _faMfb = faMfb.accessCopy();
+      (jaMfa.isPlugged() ? jaMfa.accessCopy() : Id),
+      _faMfb = faMfb.accessCopy();
 
     buildFrom((_jaMfa * _faMfb).inverse(Eigen::Affine), X);
     if (boost::is_same<LieGroup_t, R3xSO3_t>::value)
@@ -277,7 +266,7 @@ Vector6d convertVelocity<R3xSO3_t>(const MatrixHomogeneous &M,
                                    const Vector &faNufafbDes) {
   Vector6d nu;
   nu.head<3>() =
-      faNufafbDes.head<3>() - M.translation().cross(faNufafbDes.tail<3>());
+    faNufafbDes.head<3>() - M.translation().cross(faNufafbDes.tail<3>());
   nu.tail<3>() = Mdes.rotation().transpose() * faNufafbDes.tail<3>();
   return nu;
 }
@@ -302,9 +291,8 @@ Vector &FeaturePose<representation>::computeErrorDot(Vector &errordot,
   const MatrixHomogeneous &_faMfbDes = faMfbDes(time);
 
   Eigen::Matrix<double, 6, 6, Eigen::RowMajor> Jminus;
-
   LieGroup_t().template dDifference<pinocchio::ARG0>(
-      q_faMfbDes.accessCopy(), q_faMfb.accessCopy(), Jminus);
+    q_faMfbDes.accessCopy(), q_faMfb.accessCopy(), Jminus);
   Vector6d nu = convertVelocity<LieGroup_t>(faMfb(time), _faMfbDes,
                                             faNufafbDes.accessCopy());
   unsigned int cursor = 0;
@@ -323,11 +311,11 @@ void FeaturePose<representation>::servoCurrentPosition(const int &time) {
   check(*this);
 
   const MatrixHomogeneous &_oMja = (oMja.isPlugged() ? oMja.access(time) : Id),
-                          _jaMfa =
-                              (jaMfa.isPlugged() ? jaMfa.access(time) : Id),
-                          _oMjb = oMjb.access(time),
-                          _jbMfb =
-                              (jbMfb.isPlugged() ? jbMfb.access(time) : Id);
+                           _jaMfa =
+                             (jaMfa.isPlugged() ? jaMfa.access(time) : Id),
+                             _oMjb = oMjb.access(time),
+                             _jbMfb =
+                               (jbMfb.isPlugged() ? jbMfb.access(time) : Id);
   faMfbDes = (_oMja * _jaMfa).inverse(Eigen::Affine) * _oMjb * _jbMfb;
 }
 
