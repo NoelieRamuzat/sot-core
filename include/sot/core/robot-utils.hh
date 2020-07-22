@@ -11,6 +11,28 @@
 /* --------------------------------------------------------------------- */
 /* --- INCLUDE --------------------------------------------------------- */
 /* --------------------------------------------------------------------- */
+#ifdef BOOST_MPL_LIMIT_VECTOR_SIZE
+#pragma push_macro("BOOST_MPL_LIMIT_VECTOR_SIZE")
+#undef BOOST_MPL_LIMIT_VECTOR_SIZE
+#define BOOST_MPL_LIMIT_VECTOR_SIZE_PUSH
+#endif
+
+#ifdef BOOST_MPL_LIMIT_LIST_SIZE
+#pragma push_macro("BOOST_MPL_LIMIT_LIST_SIZE")
+#undef BOOST_MPL_LIMIT_LIST_SIZE
+#define BOOST_MPL_LIMIT_LIST_SIZE_PUSH
+#endif
+
+#include <boost/property_tree/ptree.hpp>
+
+#ifdef BOOST_MPL_LIMIT_VECTOR_SIZE_PUSH
+#pragma pop_macro("BOOST_MPL_LIMIT_VECTOR_SIZE")
+#endif
+
+#ifdef BOOST_MPL_LIMIT_LIST_SIZE_PUSH
+#pragma pop_macro("BOOST_MPL_LIMIT_LIST_SIZE")
+#endif
+
 #include "boost/assign.hpp"
 #include <dynamic-graph/linear-algebra.h>
 #include <dynamic-graph/logger.h>
@@ -31,6 +53,20 @@ struct SOT_CORE_EXPORT JointLimits {
 };
 
 typedef Eigen::VectorXd::Index Index;
+
+class SOT_CORE_EXPORT ExtractJointMimics {
+
+  ExtractJointMimics(std::string & robot_model);
+  
+  void go_through(boost::property_tree::ptree &pt,int level, int stage);
+  // Create empty property tree object
+  boost::property_tree::ptree m_tree;
+  std::vector<std::string> m_mimic_joints;
+  std::string m_current_joint_name;
+  void go_through_full();
+
+
+};
 
 struct SOT_CORE_EXPORT ForceLimits {
   Eigen::VectorXd upper;
@@ -217,8 +253,14 @@ public:
       If parameter_name already exists the value is overwritten.
       If not it is inserted.
    */
+  template < typename Type>
   void set_parameter(const std::string &parameter_name,
-                     const std::string &parameter_value);
+                     const Type &parameter_value)
+  {
+    typedef boost::property_tree::ptree::path_type path;
+    path apath(parameter_name,'/');
+    property_tree_.put(apath,parameter_value);
+  }
 
   /** \brief Get a parameter of type string.
       If parameter_name already exists the value is overwritten.
@@ -226,7 +268,12 @@ public:
       @param parameter_name: Name of the parameter
       Return false if the parameter is not found.
    */
-  const std::string &get_parameter(const std::string &parameter_name);
+  template <typename Type>
+  const Type &get_parameter(const std::string &parameter_name)
+  {
+    boost::property_tree::ptree::path_type apath(parameter_name,'/');
+    return property_tree_.get<Type>(apath);
+  }
 
   /** @} */
 protected:
@@ -235,10 +282,12 @@ protected:
   /** \brief Map of the parameters: map of strings. */
   std::map<std::string, std::string> parameters_strings_;
 
+  /** \brief Property tree */
+  boost::property_tree::ptree property_tree_;
 }; // struct RobotUtil
 
 /// Accessors - This should be changed to RobotUtilPtrShared
-typedef boost::shared_ptr<RobotUtil> RobotUtilShrPtr;
+typedef std::shared_ptr<RobotUtil> RobotUtilShrPtr;
 
 RobotUtilShrPtr RefVoidRobotUtil();
 RobotUtilShrPtr getRobotUtil(std::string &robotName);

@@ -35,6 +35,7 @@
 /* --- INCLUDE --------------------------------------------------------- */
 /* --------------------------------------------------------------------- */
 
+#include <sstream>
 #include "boost/assign.hpp"
 #include <dynamic-graph/signal-helper.h>
 #include <map>
@@ -99,9 +100,35 @@ public:
   /// @}
   /// \name Commands related to the model
   /// @{
+  template <typename Type>
   void setParameter(const std::string &ParameterName,
-                    const std::string &ParameterValue);
-  std::string getParameter(const std::string &ParameterName);
+                    const Type &ParameterValue)
+  {
+    if (!m_initSucceeded) {
+      std::ostringstream oss;
+      oss << ParameterValue;
+      SEND_WARNING_STREAM_MSG("Cannot set parameter " + ParameterName + " to " +
+                              oss.str().c_str() +
+                              " before initialization!");
+      return;
+    }
+    m_robot_util->set_parameter<Type>(ParameterName, ParameterValue);
+  }
+
+  template <typename Type>
+  Type getParameter(const std::string &ParameterName)
+  {
+    Type ParameterValue;
+    if (!m_initSucceeded) {
+      SEND_WARNING_STREAM_MSG("Cannot get parameter " + ParameterName +
+                              " before initialization!");
+      return ParameterValue;
+    }
+    ParameterValue = m_robot_util->get_parameter<Type>(ParameterName);
+
+    return ParameterValue;
+  }
+
   /// @}
   /// Set the mapping between urdf and sot.
   void setJoints(const dynamicgraph::Vector &);
