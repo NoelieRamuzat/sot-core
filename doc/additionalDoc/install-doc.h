@@ -20,7 +20,7 @@ The recommended way to install sot-core is to use
 <a href="https://robotpkg.openrobots.org/robotpkg-wip.html">wip
 extension</a>.
 
-A short and quick way to get it on 16.04 LTS is to do the following:
+A short and quick way to get it on Ubuntu 20.04/18.04/16.04 LTS is to do the following:
 \verbatim
 sudo tee /etc/apt/sources.list.d/robotpkg.list <<EOF
 deb [arch=amd64] http://robotpkg.openrobots.org/wip/packages/debian/pub kinetic
