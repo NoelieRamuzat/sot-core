@@ -29,7 +29,7 @@ namespace pt = boost::property_tree;
 using namespace dg;
 using namespace dg::command;
 
-RobotUtil VoidRobotUtil;
+static RobotUtil VoidRobotUtil;
 ForceLimits VoidForceLimits;
 JointLimits VoidJointLimits;
 Index VoidIndex(-1);
@@ -41,20 +41,25 @@ RobotUtilShrPtr RefVoidRobotUtil() {
 ExtractJointMimics::ExtractJointMimics(std::string & robot_model) {
   // Parsing the model from a string.
   std::istringstream iss(robot_model);
-  boost::property_tree::read_xml(iss,m_tree);
+  boost::property_tree::read_xml(iss,tree_);
   go_through_full();
 }
 
+const std::vector<std::string> &
+ExtractJointMimics::get_mimic_joints() {
+  return mimic_joints_;
+}
+
 void ExtractJointMimics::go_through_full()  {
-  m_current_joint_name="";
-  go_through(m_tree,0,0);
+  current_joint_name_="";
+  go_through(tree_,0,0);
 }
 
 void ExtractJointMimics::go_through(pt::ptree &pt, int level, int stage)
 {
   if (pt.empty()) {
     if (stage==3)
-      m_current_joint_name=pt.data();
+      current_joint_name_=pt.data();
   }
   else {
 
@@ -76,7 +81,7 @@ void ExtractJointMimics::go_through(pt::ptree &pt, int level, int stage)
       else if (pos.first=="mimic")
       {
         if (stage==1)
-          m_mimic_joints.push_back(m_current_joint_name);
+          mimic_joints_.push_back(current_joint_name_);
       }
       else new_stage=0;
       
@@ -497,7 +502,7 @@ bool base_sot_to_urdf(ConstRefVector q_sot, RefVector q_urdf) {
   return true;
 }
 
-std::map<std::string, RobotUtilShrPtr> sgl_map_name_to_robot_util;
+static std::map<std::string, RobotUtilShrPtr> sgl_map_name_to_robot_util;
 
 std::shared_ptr<std::vector<std::string> > getListOfRobots() {
   std::shared_ptr<std::vector<std::string> > res =

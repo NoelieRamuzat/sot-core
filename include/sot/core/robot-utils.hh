@@ -55,16 +55,22 @@ struct SOT_CORE_EXPORT JointLimits {
 typedef Eigen::VectorXd::Index Index;
 
 class SOT_CORE_EXPORT ExtractJointMimics {
-
-  ExtractJointMimics(std::string & robot_model);
   
-  void go_through(boost::property_tree::ptree &pt,int level, int stage);
-  // Create empty property tree object
-  boost::property_tree::ptree m_tree;
-  std::vector<std::string> m_mimic_joints;
-  std::string m_current_joint_name;
-  void go_through_full();
+public:
+  /// Constructor
+  ExtractJointMimics(std::string & robot_model);
 
+  /// Get mimic joints.
+  const std::vector<std::string>  &get_mimic_joints();
+
+private:
+  void go_through(boost::property_tree::ptree &pt,int level, int stage);
+
+  // Create empty property tree object
+  boost::property_tree::ptree tree_;
+  std::vector<std::string> mimic_joints_;
+  std::string current_joint_name_;
+  void go_through_full();
 
 };
 
@@ -274,8 +280,11 @@ public:
     boost::property_tree::ptree::path_type apath(parameter_name,'/');
     return property_tree_.get<Type>(apath);
   }
-
   /** @} */
+
+  /** Access to property tree directly */
+  boost::property_tree::ptree & get_property_tree();
+
 protected:
   Logger logger_;
 
