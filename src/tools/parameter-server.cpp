@@ -164,6 +164,13 @@ ParameterServer::ParameterServer(const std::string &name)
                                  "ParameterValue (string format).",
                                  "(string) ParameterName",
                                  "(int) ParameterValue")));
+  addCommand("setParameterDbl",
+             makeCommandVoid2(
+                 *this, &ParameterServer::setParameter<double>,
+                 docCommandVoid2("Set a parameter named ParameterName to value "
+                                 "ParameterValue (string format).",
+                                 "(string) ParameterName",
+                                 "(double) ParameterValue")));
   addCommand("setParameter",
              makeCommandVoid2(
                  *this, &ParameterServer::setParameter<std::string>,
@@ -182,7 +189,7 @@ ParameterServer::ParameterServer(const std::string &name)
 
   addCommand("getParameterInt",
              makeCommandReturnType1(
-                 *this, &ParameterServer::getParameter<string>,
+                 *this, &ParameterServer::getParameter<int>,
                  docCommandReturnType1<int>(
                      "Return the parameter value for parameter"
                      " named ParameterName.",
@@ -190,7 +197,7 @@ ParameterServer::ParameterServer(const std::string &name)
 
   addCommand("getParameterDbl",
              makeCommandReturnType1(
-                 *this, &ParameterServer::getParameter<string>,
+                 *this, &ParameterServer::getParameter<double>,
                  docCommandReturnType1<double>(
                      "Return the parameter value for parameter"
                      " named ParameterName.",
@@ -198,7 +205,7 @@ ParameterServer::ParameterServer(const std::string &name)
     
   addCommand("getParameterBool",
              makeCommandReturnType1(
-                 *this, &ParameterServer::getParameter<string>,
+                 *this, &ParameterServer::getParameter<bool>,
                  docCommandReturnType1<bool>(
                      "Return the parameter value for parameter"
                      " named ParameterName.",

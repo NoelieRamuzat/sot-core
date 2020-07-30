@@ -275,7 +275,7 @@ public:
       Return false if the parameter is not found.
    */
   template <typename Type>
-  const Type &get_parameter(const std::string &parameter_name)
+  Type get_parameter(const std::string &parameter_name)
   {
     boost::property_tree::ptree::path_type apath(parameter_name,'/');
     return property_tree_.get<Type>(apath);
