@@ -288,6 +288,27 @@ struct HomogeneousMatrixToVector
   }
 };
 
+struct HomogeneousMatrixToSE3Vector
+    : public UnaryOpHeader<MatrixHomogeneous, dg::Vector> {
+  void operator()(const MatrixHomogeneous &M, dg::Vector &res) {
+    res.resize(12);
+    res.head<3>() = M.translation();
+    res.segment(3, 3) = M.linear().row(0);
+    res.segment(6, 3) = M.linear().row(1);
+    res.segment(9, 3) = M.linear().row(2);
+  }
+};
+
+struct SE3VectorToHomogeneousMatrix
+    : public UnaryOpHeader<dg::Vector, MatrixHomogeneous> {
+  void operator()(const dg::Vector &vect, MatrixHomogeneous &Mres) {
+    Mres.translation() = vect.head<3>();
+    Mres.linear().row(0) = vect.segment(3, 3);
+    Mres.linear().row(1) = vect.segment(6, 3);
+    Mres.linear().row(2) = vect.segment(9, 3);
+  }
+};
+
 struct SkewSymToVector : public UnaryOpHeader<Matrix, Vector> {
   inline void operator()(const Matrix &M, Vector &res) {
     res.resize(3);
@@ -307,6 +328,14 @@ struct PoseUThetaToMatrixHomo
       res.linear() = Eigen::AngleAxisd(theta, v.tail<3>() / theta).matrix();
     else
       res.linear().setIdentity();
+  }
+};
+
+struct PoseQuaternionToMatrixHomo
+    : public UnaryOpHeader<Vector, MatrixHomogeneous> {
+  void operator()(const dg::Vector &vect, MatrixHomogeneous &Mres) {
+    Mres.translation() = vect.head<3>();
+    Mres.linear() = VectorQuaternion(vect.tail<4>()).toRotationMatrix();
   }
 };
 
