@@ -100,9 +100,12 @@ BOOST_PYTHON_MODULE(wrap)
    /* ----------------------------------------------------------------------- */
 
   exposeUnaryOp < HomogeneousMatrixToVector>      ();
+  exposeUnaryOp < HomogeneousMatrixToSE3Vector>   ();
+  exposeUnaryOp < SE3VectorToHomogeneousMatrix>   ();
   exposeUnaryOp < SkewSymToVector>                ();
   exposeUnaryOp < PoseUThetaToMatrixHomo>         ();
   exposeUnaryOp < MatrixHomoToPoseQuaternion>     ();
+  exposeUnaryOp < PoseQuaternionToMatrixHomo>     ();
   exposeUnaryOp < MatrixHomoToPoseRollPitchYaw>   ();
   exposeUnaryOp < PoseRollPitchYawToMatrixHomo>   ();
   exposeUnaryOp < PoseRollPitchYawToPoseUTheta>   ();
